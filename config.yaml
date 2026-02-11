@@ -1,0 +1,232 @@
+# Configuration file for Facial Skin Cancer Detection System
+
+# Project Settings
+project:
+  name: "face-skin-cancer-detection"
+  version: "1.0.0"
+  experiment_name: "baseline_experiment"
+  seed: 42
+
+# Data Configuration
+data:
+  # Dataset paths
+  data_dir: "./data"
+  raw_data_dir: "./data/raw"
+  processed_data_dir: "./data/processed"
+  
+  # Dataset sources
+  datasets:
+    - "ISIC"
+    - "HAM10000"
+    - "PH2"
+  
+  # Image settings
+  image_size: 512
+  image_channels: 3
+  face_detection: true
+  facial_landmarks: true
+  
+  # Data splits
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  
+  # Filtering
+  filter_facial_only: true
+  min_image_size: 256
+  
+  # Augmentation
+  augmentation:
+    enabled: true
+    face_aware: true
+    lesion_preserving: true
+    probability: 0.8
+
+# Model Configuration
+model:
+  # Backbone
+  backbone:
+    type: "hybrid"  # "hybrid" (EfficientNet-V2 + ViT) or "efficientnet" or "vit"
+    efficientnet_variant: "efficientnet_v2_s"
+    vit_config:
+      image_size: 512
+      patch_size: 16
+      dim: 768
+      depth: 12
+      heads: 12
+      mlp_dim: 3072
+      dropout: 0.1
+      emb_dropout: 0.1
+  
+  # ABCDE Module
+  abcde:
+    enabled: true
+    feature_dim: 256
+    num_heads: 8
+    dropout: 0.1
+  
+  # Attention Modules
+  attention:
+    num_heads: 8
+    head_dim: 64
+    dropout: 0.1
+  
+  # Fusion Module
+  fusion:
+    enabled: true
+    clinical_features_dim: 10
+    fusion_dim: 512
+    cross_attention: true
+  
+  # Fairness Module
+  fairness:
+    enabled: true
+    adversarial: true
+    skin_tone_classes: 6  # Fitzpatrick scale I-VI
+    debias_weight: 0.1
+  
+  # Uncertainty Module
+  uncertainty:
+    enabled: true
+    bayesian: true
+    num_samples: 10  # For Monte Carlo dropout
+    prior_mu: 0.0
+    prior_sigma: 1.0
+  
+  # Output Heads
+  outputs:
+    abcde_scores: true
+    classification: true
+    segmentation: false  # Optional
+    uncertainty: true
+  
+  # Classification
+  num_classes: 2  # benign/malignant
+  lesion_types: 7  # For multi-class classification (optional)
+
+# Training Configuration
+training:
+  # Basic settings
+  batch_size: 16
+  num_epochs: 100
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  
+  # Optimizer
+  optimizer: "adamw"
+  optimizer_params:
+    betas: [0.9, 0.999]
+    eps: 1e-8
+  
+  # Learning Rate Scheduler
+  scheduler: "cosine"
+  scheduler_params:
+    warmup_epochs: 5
+    min_lr: 1e-6
+  
+  # Loss weights
+  loss_weights:
+    classification: 1.0
+    abcde: 0.5
+    fairness: 0.1
+    uncertainty: 0.2
+  
+  # Mixed precision
+  mixed_precision: true
+  fp16: true
+  
+  # Gradient settings
+  gradient_clip: 1.0
+  gradient_accumulation_steps: 1
+  
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 10
+    min_delta: 0.001
+    monitor: "val_auc"
+    mode: "max"
+  
+  # Checkpointing
+  checkpoint:
+    save_dir: "./checkpoints"
+    save_frequency: 5  # Save every N epochs
+    save_best: true
+    resume_from: null
+  
+  # Data loading
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 2
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "accuracy"
+    - "auc_roc"
+    - "sensitivity"
+    - "specificity"
+    - "ppv"
+    - "npv"
+    - "f1_score"
+  
+  abcde_metrics:
+    - "mse"
+    - "mae"
+    - "correlation"
+  
+  fairness_metrics:
+    - "equalized_odds"
+    - "demographic_parity"
+    - "calibration"
+  
+  uncertainty_metrics:
+    - "ece"
+    - "brier_score"
+    - "nll"
+
+# Explainability Configuration
+explainability:
+  enabled: true
+  methods:
+    - "gradcam"
+    - "abcde_attention"
+    - "uncertainty_map"
+  
+  save_dir: "./explanations"
+  save_format: "png"
+
+# Logging Configuration
+logging:
+  # Experiment tracking
+  use_wandb: true
+  use_tensorboard: true
+  
+  wandb:
+    project: "face-skin-cancer-detection"
+    entity: null
+    tags: []
+  
+  tensorboard:
+    log_dir: "./logs"
+  
+  # Console logging
+  log_level: "INFO"
+  log_file: "./logs/training.log"
+
+# Hardware Configuration
+hardware:
+  device: "cuda"  # "cuda" or "cpu"
+  gpu_ids: [0]
+  num_gpus: 1
+  deterministic: false
+
+# Paths
+paths:
+  data: "./data"
+  checkpoints: "./checkpoints"
+  logs: "./logs"
+  results: "./results"
+  experiments: "./experiments"
+  notebooks: "./notebooks"
+
