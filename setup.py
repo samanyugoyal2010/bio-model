@@ -1,10 +1,28 @@
 from setuptools import setup, find_packages
+from pathlib import Path
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Fallback-safe long description
+readme_path = Path("README.md")
+if readme_path.is_file():
+    with readme_path.open("r", encoding="utf-8") as fh:
+        long_description = fh.read()
+else:
+    long_description = (
+        "Novel Multi-Modal Facial Skin Cancer Detection System with "
+        "ABCDE-Aware Explainability."
+    )
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+# Fallback-safe requirements
+requirements_path = Path("requirements.txt")
+if requirements_path.is_file():
+    with requirements_path.open("r", encoding="utf-8") as fh:
+        requirements = [
+            line.strip()
+            for line in fh
+            if line.strip() and not line.startswith("#")
+        ]
+else:
+    requirements = []
 
 setup(
     name="face-skin-cancer-detection",

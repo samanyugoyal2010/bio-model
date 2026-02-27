@@ -234,6 +234,7 @@ class SkinCancerModel(nn.Module):
         output = {
             'logits': logits,
             'lesion_type_logits': lesion_type_logits,
+            'features': fused_features,
         }
         
         if abcde_scores is not None:

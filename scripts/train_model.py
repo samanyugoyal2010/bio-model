@@ -38,7 +38,7 @@ def main():
         fusion_enabled=model_config['fusion']['enabled'],
         fairness_enabled=model_config['fairness']['enabled'],
         uncertainty_enabled=model_config['uncertainty']['enabled'],
-        num_classes=model_config['outputs']['classification'],
+        num_classes=model_config['num_classes'],
     )
     
     # Create datasets
